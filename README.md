@@ -13,12 +13,19 @@ This repository provides best practices, patterns, and guidelines for testing .N
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-- [Testing Frameworks](#testing-frameworks)
-- [Best Practices](#best-practices)
-- [Test Organization](#test-organization)
-- [Running Tests](#running-tests)
-- [Contributing](#contributing)
+- [.NET Testing Best Practices](#net-testing-best-practices)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+  - [Testing Frameworks](#testing-frameworks)
+  - [Best Practices](#best-practices)
+  - [Test Organization](#test-organization)
+    - [Project Structure](#project-structure)
+    - [Test Categories](#test-categories)
+  - [Tools and Libraries](#tools-and-libraries)
+    - [Recommended Packages](#recommended-packages)
+  - [Running Tests](#running-tests)
 
 ## Getting Started
 
@@ -49,12 +56,12 @@ This repository demonstrates key testing principles:
 ```
 Solution/
 ├── src/
-│   ├── YourProject/
-│   └── YourProject.Domain/
+│   ├── PointsWallet.Api/           # Minimal API, endpoints, DI
+│   ├── PointsWallet.Domain/        # Domain models, commands, validators
+│   └── PointsWallet.Infrastructure/# EF Core, repositories, DI
 └── tests/
-    ├── YourProject.UnitTests/
-    ├── YourProject.IntegrationTests/
-    └── YourProject.EndToEndTests/
+    ├── PointsWallet.UnitTests/     # Unit tests for domain/application
+    ├── PointsWallet.IntegrationTests/ # Integration tests (e.g. DB, API)
 ```
 
 ### Test Categories
@@ -95,7 +102,10 @@ dotnet test
 dotnet test --collect:"XPlat Code Coverage"
 
 # Run tests in a specific project
-dotnet test tests/YourProject.UnitTests
+dotnet test tests/PointsWallet.UnitTests 
+# OR
+dotnet test tests/PointsWallet.IntegrationTests
 
 # Run tests with verbose output
 dotnet test --logger "console;verbosity=detailed"
+```

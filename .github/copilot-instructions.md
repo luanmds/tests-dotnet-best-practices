@@ -2,14 +2,13 @@
 
 ## Project Overview
 
-This repository demonstrates testing best practices for .NET applications following Domain-Driven Design (DDD) principles, SOLID architecture, and event-driven patterns. The focus is on practical, real-world testing examples using C# 13/.NET 9.
+This repository demonstrates testing best practices for .NET applications following Domain-Driven Design (DDD) principles, SOLID architecture, CQRS, and event-driven patterns. The focus is on practical, real-world testing examples using C# 13/.NET 9.
 
 ## Architecture Style
 
-**DDD-First with Event-Driven Architecture**:
-- **Domain Layer**: Aggregates, value objects, domain events - business logic lives here
-- **Application Layer**: CQRS commands/queries with MediatR, orchestrates domain operations
-- **Infrastructure Layer**: Repositories, message bus (Kafka/RabbitMQ), EF Core
+**DDD-First with CQRS and Clean Architecture**:
+- **Domain Layer**: Aggregates, value objects, domain events - business logic lives here, CQRS commands/queries with MediatR, orchestrates domain operations
+- **Infrastructure Layer**: Repositories, message bus (RabbitMQ), EF Core
 - **Presentation Layer**: Minimal APIs and background workers
 
 **Key Pattern**: Aggregates emit domain events → Event handlers publish to message bus → Background workers consume events
