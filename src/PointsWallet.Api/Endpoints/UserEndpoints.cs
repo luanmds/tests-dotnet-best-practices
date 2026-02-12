@@ -1,6 +1,6 @@
 using MediatR;
 using PointsWallet.Api.Requests;
-using PointsWallet.Domain.Models.Commands;
+using PointsWallet.Domain.Models.Commands.CreateUser;
 
 namespace PointsWallet.Api.Endpoints;
 
@@ -16,7 +16,8 @@ public static class UserEndpoints
             .WithName("CreateUser")
             .WithOpenApi()
             .Produces<CreateUserResponse>(StatusCodes.Status201Created)
-            .ProducesProblem(StatusCodes.Status400BadRequest);
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .RequireAuthorization();
     }
 
     private static async Task<IResult> CreateUserAsync(

@@ -1,6 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using PointsWallet.Domain.Models.Commands.Validators;
+using PointsWallet.Domain.Commands.CreateUser;
 
 namespace PointsWallet.Domain;
 

@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace PointsWallet.Domain.Models.Commands;
+namespace PointsWallet.Domain.Commands.CreateUser;
 
 public sealed record CreateUserCommand(
     string Name,

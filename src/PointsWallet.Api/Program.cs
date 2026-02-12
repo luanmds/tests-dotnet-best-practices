@@ -1,7 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using PointsWallet.Api.Endpoints;
 using PointsWallet.Domain;
 using PointsWallet.Domain.Behaviors;
-using PointsWallet.Domain.Models.Commands;
+using PointsWallet.Domain.Commands.CreateUser;
 using PointsWallet.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,7 @@ builder.Services.AddSwaggerGen();
 
 // Register Domain and Infrastructure layers
 builder.Services.AddDomain();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Register MediatR with validation behavior
 builder.Services.AddMediatR(cfg =>
@@ -40,4 +41,14 @@ app.UseHttpsRedirection();
 // Map endpoints
 app.MapUserEndpoints();
 
+// Apply migrations in development
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
 app.Run();
+
+public partial class Program { }

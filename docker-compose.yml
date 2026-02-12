@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: pointswallet-db
+    environment:
+      POSTGRES_DB: pointswalletdb
+      POSTGRES_USER: pointswallet
+      POSTGRES_PASSWORD: pointswallet123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pointswallet -d pointswalletdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pointswallet-network
+
+  api:
+    build:
+      context: .
+      dockerfile: src/PointsWallet.Api/Dockerfile
+    container_name: pointswallet-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pointswallet-network
+
+volumes:
+  postgres_data:
+
+networks:
+  pointswallet-network:
+    driver: bridge

@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace PointsWallet.Domain.Models.Commands.Validators;
+namespace PointsWallet.Domain.Commands.CreateUser;
 
 public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
