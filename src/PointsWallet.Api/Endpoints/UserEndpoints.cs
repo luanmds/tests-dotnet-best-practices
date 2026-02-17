@@ -1,6 +1,6 @@
 using MediatR;
 using PointsWallet.Api.Requests;
-using PointsWallet.Domain.Models.Commands.CreateUser;
+using PointsWallet.Domain.Commands.CreateUser;
 
 namespace PointsWallet.Api.Endpoints;
 
@@ -30,6 +30,7 @@ public static class UserEndpoints
 
         return Results.CreatedAtRoute(
             "CreateUser",
+            new { id = userId },
             new CreateUserResponse(userId));
     }
 }

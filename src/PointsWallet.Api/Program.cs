@@ -15,6 +15,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add Authentication & Authorization
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
 // Register Domain and Infrastructure layers
 builder.Services.AddDomain();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -37,6 +41,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthorization();
 
 // Map endpoints
 app.MapUserEndpoints();
@@ -45,10 +50,8 @@ app.MapUserEndpoints();
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<PointsWalletDbContext>();
     dbContext.Database.Migrate();
 }
 
 app.Run();
-
-public partial class Program { }

@@ -3,7 +3,7 @@ using PointsWallet.Domain.Repositories;
 
 namespace PointsWallet.Infrastructure.Repositories;
 
-public class WalletRepository(ApplicationDbContext context) 
+public class WalletRepository(PointsWalletDbContext context) 
     : Repository<Wallet>(context), IWalletRepository
 {
 }

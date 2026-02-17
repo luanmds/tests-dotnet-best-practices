@@ -11,7 +11,7 @@ using PointsWallet.Infrastructure;
 
 namespace PointsWallet.Infrastructure.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(PointsWalletDbContext))]
     [Migration("20260212001938_InitialCreate")]
     partial class InitialCreate
     {

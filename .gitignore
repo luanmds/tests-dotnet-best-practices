@@ -155,3 +155,4 @@ coverage*.info
 # dotenv environment variables file
 .env
 .env.*
+!.env.example
