@@ -1,4 +1,4 @@
-namespace PointsWallet.Api.Requests;
+namespace PointsWallet.Api.Requests.Users;
 
 public sealed record CreateUserRequest(
     string Name,

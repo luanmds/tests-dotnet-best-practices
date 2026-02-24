@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using FluentAssertions;
 using PointsWallet.Api.Endpoints;
-using PointsWallet.Api.Requests;
+using PointsWallet.Api.Requests.Users;
 using PointsWallet.IntegrationTests.Fixtures;
 
 namespace PointsWallet.IntegrationTests.Api.Users;

@@ -1,5 +1,5 @@
 using MediatR;
-using PointsWallet.Api.Requests;
+using PointsWallet.Api.Requests.Users;
 using PointsWallet.Domain.Commands.CreateUser;
 
 namespace PointsWallet.Api.Endpoints;

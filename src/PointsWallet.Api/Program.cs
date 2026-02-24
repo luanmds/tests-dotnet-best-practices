@@ -45,6 +45,7 @@ app.UseAuthorization();
 
 // Map endpoints
 app.MapUserEndpoints();
+app.MapWalletEndpoints();
 
 // Apply migrations in development
 if (app.Environment.IsDevelopment())
