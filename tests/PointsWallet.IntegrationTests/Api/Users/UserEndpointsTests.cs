@@ -18,7 +18,6 @@ public class UserEndpointsTests(PointsWalletWebApplicationFixture fixture)
         var request = new CreateUserRequest("John Doe", "john.doe@example.com");
 
         // Act
-
         var response = await _client.PostAsJsonAsync("/api/users/", request);
 
         // Assert

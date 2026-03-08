@@ -40,4 +40,11 @@ public class PointsWalletWebApplicationFixture : IAsyncLifetime
         _application?.Dispose();
         await _container.DisposeAsync();
     }
+
+    public async Task ExecuteDbContextAsync(Func<PointsWalletDbContext, Task> action)
+    {
+        using var scope = _application.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<PointsWalletDbContext>();
+        await action(dbContext);
+    }
 }
