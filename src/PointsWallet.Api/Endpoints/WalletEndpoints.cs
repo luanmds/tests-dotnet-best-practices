@@ -1,5 +1,7 @@
+using MassTransit;
 using MediatR;
 using PointsWallet.Api.Requests.Wallets;
+using PointsWallet.Contracts.Messages;
 using PointsWallet.Domain.Commands.CreateWallet;
 
 namespace PointsWallet.Api.Endpoints;
@@ -18,6 +20,13 @@ public static class WalletEndpoints
             .Produces<CreateWalletResponse>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict)
+            .RequireAuthorization();
+
+        group.MapPost("/{userId}/wallets/{walletId}/points", AddPointsAsync)
+            .WithName("AddPoints")
+            .WithOpenApi()
+            .Produces(StatusCodes.Status202Accepted)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .RequireAuthorization();
     }
 
@@ -40,6 +49,31 @@ public static class WalletEndpoints
                 statusCode: StatusCodes.Status409Conflict,
                 title: exception.Message);
         }
+    }
+
+    private static async Task<IResult> AddPointsAsync(
+        string userId,
+        string walletId,
+        AddPointsRequest request,
+        IPublishEndpoint publishEndpoint,
+        CancellationToken cancellationToken)
+    {
+        if (request.Points <= 0)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Points must be greater than zero");
+        }
+
+        var message = new AddPointsMessage(
+            walletId,
+            userId,
+            request.Points,
+            Guid.NewGuid().ToString());
+
+        await publishEndpoint.Publish(message, cancellationToken);
+
+        return Results.Accepted();
     }
 }
 
