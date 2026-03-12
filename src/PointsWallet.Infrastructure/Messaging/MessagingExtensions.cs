@@ -23,10 +23,13 @@ public static class MessagingExtensions
             busConfigurator.UsingRabbitMq((context, cfg) =>
             {
                 var host = configuration["RabbitMQ:Host"] ?? "localhost";
+                var port = ushort.TryParse(configuration["RabbitMQ:Port"], out var parsedPort)
+                    ? parsedPort
+                    : (ushort)5672;
                 var username = configuration["RabbitMQ:Username"] ?? "guest";
                 var password = configuration["RabbitMQ:Password"] ?? "guest";
 
-                cfg.Host(host, "/", h =>
+                cfg.Host(host, port, "/", h =>
                 {
                     h.Username(username);
                     h.Password(password);

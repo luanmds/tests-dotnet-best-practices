@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PointsWallet.Api\PointsWallet.Api.csproj" />
+    <ProjectReference Include="..\..\src\PointsWallet.Worker\PointsWallet.Worker.csproj" />
   </ItemGroup>
 
 </Project>

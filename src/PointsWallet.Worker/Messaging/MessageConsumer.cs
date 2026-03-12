@@ -28,7 +28,8 @@ public sealed class MessageConsumer(
     public async Task Consume(ConsumeContext<IMessage> context)
     {
         logger.LogInformation(
-            "[Message Consumer] Received message with CorrelationId {CorrelationId}",
+            "[Message Consumer] Received message. Type: {MessageType} with CorrelationId {CorrelationId}",
+            context.Message.GetType().Name,
             context.Message.CorrelationId);
 
         foreach (var handler in registry.Handlers)
@@ -47,8 +48,9 @@ public sealed class MessageConsumer(
         }
 
         logger.LogWarning(
-            "[Message Consumer] No handler found for message with CorrelationId {CorrelationId}. "
+            "[Message Consumer] No handler found for message of type {MessageType} with CorrelationId {CorrelationId}. "
             + "Supported message types: {SupportedTypes}",
+            context.Message.GetType().Name,
             context.Message.CorrelationId,
             string.Join(", ", context.SupportedMessageTypes));
     }

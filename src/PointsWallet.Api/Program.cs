@@ -56,6 +56,8 @@ builder.Services.AddMediatR(cfg =>
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);  
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
