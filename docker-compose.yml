@@ -1,0 +1,78 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: pointswallet-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pointswalletdb}
+      POSTGRES_USER: ${POSTGRES_USER:-pointswallet}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pointswallet -d pointswalletdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pointswallet-network
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: pointswallet-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pointswallet-network
+
+  api:
+    build:
+      context: .
+      dockerfile: src/PointsWallet.Api/Dockerfile
+    container_name: pointswallet-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-pointswalletdb};Username=${POSTGRES_USER:-pointswallet};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pointswallet-network
+
+  worker:
+    build:
+      context: .
+      dockerfile: src/PointsWallet.Worker/Dockerfile
+    container_name: pointswallet-worker
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-pointswalletdb};Username=${POSTGRES_USER:-pointswallet};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pointswallet-network
+
+volumes:
+  postgres_data:
+
+networks:
+  pointswallet-network:
+    driver: bridge

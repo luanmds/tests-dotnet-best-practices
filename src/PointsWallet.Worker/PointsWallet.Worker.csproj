@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.6" />
+    <PackageReference Include="MediatR" Version="14.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PointsWallet.Contracts\PointsWallet.Contracts.csproj" />
+    <ProjectReference Include="..\PointsWallet.Domain\PointsWallet.Domain.csproj" />
+    <ProjectReference Include="..\PointsWallet.Infrastructure\PointsWallet.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

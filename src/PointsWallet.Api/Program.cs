@@ -1,0 +1,88 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using PointsWallet.Api.Endpoints;
+using PointsWallet.Domain;
+using PointsWallet.Domain.Behaviors;
+using PointsWallet.Domain.Commands.CreateUser;
+using PointsWallet.Infrastructure;
+using PointsWallet.Infrastructure.Messaging;
+using System.Text;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenApi();
+
+// Add Swagger services
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Add Authentication & Authorization
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+    ?? throw new InvalidOperationException("Jwt:Issuer is not configured");
+var jwtAudience = builder.Configuration["Jwt:Audience"]
+    ?? throw new InvalidOperationException("Jwt:Audience is not configured");
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("Jwt:Key is not configured");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+builder.Services.AddAuthorization();
+
+// Register Domain and Infrastructure layers
+builder.Services.AddDomain();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// Register MassTransit + RabbitMQ messaging (publisher only, no consumers)
+builder.Services.AddMessaging(builder.Configuration);
+
+// Register MediatR with validation behavior
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblyContaining<CreateUserCommand>();
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
+
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);  
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Map endpoints
+app.MapAuthEndpoints();
+app.MapUserEndpoints();
+app.MapWalletEndpoints();
+
+// Apply migrations in development
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<PointsWalletDbContext>();
+    dbContext.Database.Migrate();
+}
+
+app.Run();
