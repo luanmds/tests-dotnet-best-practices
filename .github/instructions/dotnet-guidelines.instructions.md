@@ -21,7 +21,7 @@ You are an AI assistant specialized in Domain-Driven Design (DDD), SOLID princip
    - Does this follow DDD aggregate boundaries?
    - Does the design adhere to the Single Responsibility Principle?
    - Are domain rules encapsulated correctly in aggregates?
-   - Will tests follow the `MethodName_Scenario_ExpectedResult` pattern?
+    - Will tests follow the canonical test guidance in `.github/instructions/test-guidelines.instructions.md`?
    - Is the ubiquitous language consistent?
 
 3. **Validate Implementation Plan** - Before coding, state:
@@ -490,67 +490,15 @@ public class OrderProcessingWorker(
 
 ## Testing Standards
 
-### Test Naming Convention
+Testing patterns, naming, structure, coverage, and anti-patterns are centralized in:
 
-**MANDATORY**: Use `MethodName_Scenario_ExpectedResult` pattern
+- `.github/instructions/test-guidelines.instructions.md`
 
-```csharp
-[Fact]
-public void Confirm_WhenOrderAlreadyConfirmed_ThrowsInvalidOperationException()
-```
+When implementing DDD use cases, apply those standards with domain intent:
 
-### Test Structure
-
-- Follow AAA pattern (Arrange, Act, Assert)
-- **DO NOT emit "Arrange", "Act", or "Assert" comments**
-- Use FluentAssertions for expressive assertions
-- One logical assertion per test
-
-```csharp
-[Fact]
-public void Constructor_WithEmptyOrderNumber_ThrowsArgumentException()
-{
-    var orderDetails = new OrderDetails 
-    { 
-        LineItems = new List<OrderLineItem>(),
-        ShippingAddress = "123 Main St",
-        RequiredDeliveryDate = DateTime.UtcNow.AddDays(5)
-    };
-
-    var act = () => new Order("", orderDetails);
-
-    act.Should().Throw<ArgumentException>()
-        .WithMessage("*Order number should not be null or empty*");
-}
-```
-
-### Domain Test Categories
-
-- **Aggregate Tests**: Business rule validation and state changes
-- **Value Object Tests**: Immutability and equality
-- **Domain Service Tests**: Complex business operations
-- **Event Tests**: Event publishing and handling
-- **Application Service Tests**: Orchestration and input validation
-- **Integration Tests**: Repository, message bus, and API endpoints
-
-### Test Coverage
-
-- Minimum **85%** for domain and application layers
-- Test happy paths and edge cases
-- Test exception scenarios
-- Test state transitions in aggregates
-- Test event publishing
-- Use NSubstitute or Moq for mocking
-- Use AutoFixture for test data generation
-
-### Test Validation Process (MANDATORY)
-
-Before writing any test, you MUST:
-
-1. ✅ Verify naming follows pattern: `MethodName_Scenario_ExpectedResult`
-2. ✅ Confirm test category: Unit/Integration/Acceptance
-3. ✅ Check domain alignment: Test validates actual business rules
-4. ✅ Review edge cases: Includes error scenarios and boundary conditions
+- Validate aggregate invariants and state transitions
+- Verify domain event publication and handling
+- Cover application handler orchestration and error paths
 
 ## Implementation Guidelines
 
@@ -578,7 +526,7 @@ You MUST validate:
 You MUST outline:
 
 - Files to be created/modified with justification
-- Test cases using `MethodName_Scenario_ExpectedResult` pattern
+- Test cases aligned with `.github/instructions/test-guidelines.instructions.md`
 - Error handling and validation strategy
 - Event publishing strategy
 - Message flow through the system
@@ -693,7 +641,7 @@ logger.LogInformation(
 
 ### Implementation Quality Validation
 
-- ✅ "I have written comprehensive tests following `MethodName_Scenario_ExpectedResult` naming"
+- ✅ "I have written comprehensive tests following `.github/instructions/test-guidelines.instructions.md`"
 - ✅ "I have considered performance implications and ensured efficient processing"
 - ✅ "I have implemented proper error handling and validation"
 - ✅ "I have documented domain decisions and architectural choices"
@@ -724,6 +672,6 @@ logger.LogInformation(
 - ✅ Show your thinking process before implementing
 - ✅ Explicitly validate against these guidelines
 - ✅ Use the mandatory verification statements
-- ✅ Follow the `MethodName_Scenario_ExpectedResult` test naming pattern
+- ✅ Follow `.github/instructions/test-guidelines.instructions.md` for all testing rules
 - ✅ Confirm domain design aligns with DDD principles
 - ✅ Stop and ask for clarification if any guideline is unclear   

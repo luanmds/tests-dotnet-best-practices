@@ -20,17 +20,16 @@ This repository provides best practices, patterns, and guidelines for testing .N
     - [Prerequisites](#prerequisites)
   - [Testing Frameworks](#testing-frameworks)
   - [Best Practices](#best-practices)
-  - [Test Organization](#test-organization)
+  - [Project Organization](#project-organization)
     - [Project Structure](#project-structure)
     - [Test Categories](#test-categories)
   - [Tools and Libraries](#tools-and-libraries)
     - [Recommended Packages](#recommended-packages)
-  - [Running Integration Tests](#running-integration-tests)
-    - [Prerequisites](#prerequisites-1)
-    - [Setup User Secrets](#setup-user-secrets)
-    - [Running Tests](#running-tests)
-    - [Using Docker Compose for Local Development](#using-docker-compose-for-local-development)
-    - [Integration Tests Architecture](#integration-tests-architecture)
+  - [Running Tests](#running-tests)
+- [Run all tests](#run-all-tests)
+- [Run tests with code coverage](#run-tests-with-code-coverage)
+- [Run tests in a specific project](#run-tests-in-a-specific-project)
+- [Run tests with verbose output](#run-tests-with-verbose-output)
 
 ## Getting Started
 
@@ -54,7 +53,7 @@ This repository demonstrates key testing principles:
 - **Reliability**: Consistent and deterministic test results
 - **Coverage**: Appropriate test coverage for critical business logic
 
-## Test Organization
+## Project Organization
 
 ### Project Structure
 

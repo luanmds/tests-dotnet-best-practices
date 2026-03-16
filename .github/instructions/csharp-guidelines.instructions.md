@@ -369,60 +369,11 @@ public class OrderNotFoundException : DomainException
 
 ## Testing Guidelines
 
-### Unit Tests
-- Use xUnit as the testing framework
-- Follow AAA pattern: Arrange, Act, Assert
-- **Do NOT emit "Arrange", "Act", or "Assert" comments** in test code
-- Copy existing style in nearby files for test method names and capitalization
-- One assertion per test (generally)
-- Use meaningful test names: `MethodName_Scenario_ExpectedResult`
-- Always include test cases for critical paths of the application
-- Use FluentAssertions for expressive assertions
+Testing patterns and best practices are centralized in:
 
-```csharp
-public class ProductServiceTests
-{
-    [Fact]
-    public async Task CreateProduct_WithValidName_ReturnsProductId()
-    {
-        // Arrange
-        var repository = new Mock<IProductRepository>();
-        var unitOfWork = new Mock<IUnitOfWork>();
-        var service = new ProductService(repository.Object, unitOfWork.Object);
-        
-        // Act
-        var result = await service.CreateProductAsync("Laptop");
-        
-        // Assert
-        Assert.NotEqual(Guid.Empty, result);
-        repository.Verify(r => r.AddAsync(It.IsAny<Product>(), default), Times.Once);
-    }
-    
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    [InlineData("   ")]
-    public async Task CreateProduct_WithInvalidName_ThrowsException(string name)
-    {
-        // Arrange
-        var repository = new Mock<IProductRepository>();
-        var unitOfWork = new Mock<IUnitOfWork>();
-        var service = new ProductService(repository.Object, unitOfWork.Object);
-        
-        // Act & Assert
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => service.CreateProductAsync(name));
-    }
-}
-```
+- `.github/instructions/test-guidelines.instructions.md`
 
-### Integration Tests
-- Use WebApplicationFactory for API tests
-- Use test containers for database and message broker
-- Clean up test data after each test
-- Explain integration testing approaches for API endpoints
-- Demonstrate how to test authentication and authorization logic
-- Apply test-driven development principles where appropriate
+When working in C# test files, follow the canonical testing instruction above for naming, structure, coverage, and integration patterns.
 
 ## Data Access Patterns
 
@@ -670,7 +621,7 @@ tests/
 
 1. **Always use latest C# features** - Stay current with language improvements
 2. **Nullable reference types everywhere** - Use `is null`/`is not null` consistently
-3. **No AAA comments in tests** - Structure should be self-evident
+3. **Follow centralized test standards** - Use `.github/instructions/test-guidelines.instructions.md`
 4. **XML docs for public APIs** - Include examples and code samples
 5. **Structured logging** - Use parameters, not string concatenation
 6. **Async all the way** - Never block with `.Result` or `.Wait()`
