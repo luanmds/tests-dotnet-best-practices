@@ -58,6 +58,9 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);  
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("pointswalletdb")!, 
+    name: "PostgreSQL");
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -76,6 +79,7 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapWalletEndpoints();
+app.MapHealthChecks("/health");
 
 // Apply migrations in development
 if (app.Environment.IsDevelopment())

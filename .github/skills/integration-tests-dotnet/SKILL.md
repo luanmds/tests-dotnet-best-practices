@@ -398,22 +398,6 @@ builder.ConfigureTestServices(services =>
 });
 ```
 
-### Adding Kafka
-
-```bash
-dotnet add package Testcontainers.Kafka
-dotnet add package Confluent.Kafka
-```
-
-```csharp
-private readonly KafkaContainer _kafka =
-    new KafkaBuilder("confluentinc/cp-kafka:7.5.12")
-        .WithKRaft()
-        .Build();
-
-// Use _kafka.GetBootstrapAddress() for producer/consumer configuration
-```
-
 ### Adding RabbitMQ
 
 ```bash
@@ -426,21 +410,6 @@ private readonly RabbitMqContainer _rabbitmq =
     new RabbitMqBuilder("rabbitmq:3-management-alpine").Build();
 
 // Use _rabbitmq.GetConnectionString() for connection factory
-```
-
-### Adding SQL Server (Alternative to PostgreSQL)
-
-```bash
-dotnet add package Testcontainers.MsSql
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
-```
-
-```csharp
-private readonly MsSqlContainer _mssql =
-    new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
-        .Build();
-
-// Use _mssql.GetConnectionString() with options.UseSqlServer(connectionString)
 ```
 
 ### Module Discovery

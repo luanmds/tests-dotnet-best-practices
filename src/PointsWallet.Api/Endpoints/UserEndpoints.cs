@@ -1,6 +1,7 @@
 using MediatR;
 using PointsWallet.Api.Requests.Users;
 using PointsWallet.Domain.Commands.CreateUser;
+using PointsWallet.Domain.Repositories;
 
 namespace PointsWallet.Api.Endpoints;
 
@@ -18,6 +19,12 @@ public static class UserEndpoints
             .Produces<CreateUserResponse>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .RequireAuthorization();
+        
+        group.MapGet("/", GetUsers)
+            .WithName("GetUsers")
+            .WithOpenApi()
+            .Produces(StatusCodes.Status200OK)
+            .RequireAuthorization();
     }
 
     private static async Task<IResult> CreateUserAsync(
@@ -32,6 +39,14 @@ public static class UserEndpoints
             "CreateUser",
             new { id = userId },
             new CreateUserResponse(userId));
+    }
+
+    private static async Task<IResult> GetUsers(
+        IUserRepository userRepository, 
+        CancellationToken cancellationToken)
+    {
+        var users = await userRepository.GetAllAsync(cancellationToken);
+        return Results.Ok(users);
     }
 }
 

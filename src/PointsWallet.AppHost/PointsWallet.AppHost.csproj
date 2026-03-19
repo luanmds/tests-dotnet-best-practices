@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.2" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>607f8327-f051-46c0-8dcb-d2b84f64c27c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.5.2" />
+    <PackageReference Include="Aspire.Hosting.PostgreSql" Version="9.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PointsWallet.Api\PointsWallet.Api.csproj" />
+    <ProjectReference Include="..\PointsWallet.Worker\PointsWallet.Worker.csproj" />
+  </ItemGroup>
+
+</Project>

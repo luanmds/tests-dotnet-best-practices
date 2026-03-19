@@ -12,8 +12,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        var connectionString = configuration.GetConnectionString("pointswalletdb")
+            ?? throw new InvalidOperationException("Connection string 'pointswalletdb' not found.");
 
         services.AddDbContext<PointsWalletDbContext>(options =>
             options.UseNpgsql(connectionString));
