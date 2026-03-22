@@ -31,7 +31,7 @@ public class ApiTests(AspireAppFixture fixture)
         content?.UserId.Should().NotBeNullOrEmpty();
     }
 
-    // [Fact]
+    [Fact]
     public async Task GetUsersAsync_ShouldReturnOkStatusCode()
     {
         // Act
@@ -47,14 +47,14 @@ public class ApiTests(AspireAppFixture fixture)
 
     #region Wallets Tests
 
-    // [Theory]
-    // [InlineData("My Wallet")]
-    // [InlineData(null)]
-    public async Task CreateWalletRequest_ShouldCallCommandAndReturnSuccess(
+    [Theory]
+    [InlineData("My Wallet")]
+    [InlineData(null)]
+    public async Task CreateWalletAsync_ShouldCallCommandAndReturnSuccess(
         string? symbolicName)
     {
         // Arrange
-        var userId = ""; //await CreateUser();
+        var userId = await CreateUser();
         var request = new CreateWalletRequest(symbolicName);
 
         // Act        
@@ -67,6 +67,45 @@ public class ApiTests(AspireAppFixture fixture)
         content.Should().NotBeNull();
         content?.WalletId.Should().NotBeNullOrEmpty();
     }
+
+    // [Fact]
+    public async Task AddPointsAsync_ShouldSendCommandAndReturnSuccess()
+    {
+        // Arrange
+        var userId = await CreateUser();
+
+        var walletResponse = await _client.PostAsJsonAsync($"/api/users/{userId}/wallets", new CreateWalletRequest("My Wallet"));
+        walletResponse.EnsureSuccessStatusCode();
+
+        var walletContent = await walletResponse.Content.ReadFromJsonAsync<CreateWalletResponse>();
+        var walletId = walletContent?.WalletId;
+        walletId.Should().NotBeNullOrEmpty();
+
+        var request = new AddPointsRequest(100);
+
+        // Act
+        var response = await _client.PostAsJsonAsync($"/api/users/{userId}/wallets/{walletId}/points", request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+    }
     
+    #endregion
+
+    #region Private Helpers
+
+    private async Task<string> CreateUser()
+    {
+        var request = new CreateUserRequest("John Doe", "john.doe@example.com");
+
+        var response = await _client.PostAsJsonAsync("/api/users", request);
+
+        var content = await response.Content.ReadFromJsonAsync<CreateUserResponse>();
+        content.Should().NotBeNull();
+        content?.UserId.Should().NotBeNullOrEmpty();
+
+        return content!.UserId;
+    }
+
     #endregion
 }

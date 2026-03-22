@@ -1,0 +1,5 @@
+{
+    "appHost": {
+        "path": "src/PointsWallet.AppHost/PointsWallet.AppHost.csproj"
+    }
+}

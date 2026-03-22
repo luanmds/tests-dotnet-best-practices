@@ -23,5 +23,5 @@
   <ItemGroup>
     <InternalsVisibleTo Include="PointsWallet.IntegrationTests" />
   </ItemGroup>
-
+  
 </Project>

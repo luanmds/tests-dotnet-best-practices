@@ -1,10 +1,7 @@
 using System.Net.Http.Headers;
 using Aspire.Hosting;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Npgsql;
-using PointsWallet.Infrastructure;
+using PointsWallet.Infrastructure.Messaging;
 
 namespace PointsWallet.AspireIntegrationTests.Fixtures;
 
@@ -41,58 +38,32 @@ public class AspireAppFixture : IAsyncLifetime
         
         _appHostBuilder.Services.ConfigureHttpClientDefaults(clientBuilder =>
         {
+            // Bypass dev certificate validation so tests can use HTTPS directly
+            // without the HTTP->HTTPS redirect (which drops the Authorization header)
+            clientBuilder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            });
             clientBuilder.AddStandardResilienceHandler();
         });
 
-        _appHostBuilder.Services
-            .AddAuthentication(defaultScheme: TestAuthHandler.TestScheme)
-            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                TestAuthHandler.TestScheme, 
-                options => { });
+        _appHostBuilder.Services.AddMessaging(_appHostBuilder.Configuration);
 
         _app = _appHostBuilder.Build();
-
+        
         await _app.StartAsync(CancellationToken)
             .WaitAsync(DefaultTimeout, CancellationToken);
 
-        ApiClient = _app.CreateHttpClient("api");
-        ApiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthHandler.TestScheme);
+        ApiClient = _app.CreateHttpClient("api", "https");
+        ApiClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", JwtTokenFactory.GenerateToken());
+
         await _app.ResourceNotifications
             .WaitForResourceHealthyAsync("api", CancellationToken)
             .WaitAsync(DefaultTimeout, CancellationToken);
 
-        // TODO: migrations not running on startup, investigate
-        // await RunMigrationsAsync();
-        // await SeedData();
     }
 
     public async Task DisposeAsync() => await _app.DisposeAsync();
- 
-    public async Task ExecuteDbQueryAsync(Func<NpgsqlConnection, Task> action)
-    {
-        var connectionString = await _app.GetConnectionStringAsync("pointswalletdb");
 
-        await using var conn = new NpgsqlConnection(connectionString);
-        await conn.OpenAsync(CancellationToken);
-        await action(conn);
-    }
-
-    private async Task RunMigrationsAsync()
-    {
-        var connectionString = await _app.GetConnectionStringAsync("pointswalletdb");
-
-        var options = new DbContextOptionsBuilder<PointsWalletDbContext>()
-            .UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(PointsWalletDbContext).Assembly.FullName))
-            .Options;
-
-        using var context = new PointsWalletDbContext(options);
-        await context.Database.MigrateAsync(CancellationToken);
-    }
-
-    private async Task SeedData()
-    {
-        var seeds = new Seeds(this);
-        await seeds.SeedNewUser();
-        await seeds.SeedWalletForUser(Seeds.UserId);
-    }
 }
