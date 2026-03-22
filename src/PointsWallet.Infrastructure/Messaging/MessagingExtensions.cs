@@ -22,18 +22,10 @@ public static class MessagingExtensions
 
             busConfigurator.UsingRabbitMq((context, cfg) =>
             {
-                var host = configuration["RabbitMQ:Host"] ?? "localhost";
-                var port = ushort.TryParse(configuration["RabbitMQ:Port"], out var parsedPort)
-                    ? parsedPort
-                    : (ushort)5672;
-                var username = configuration["RabbitMQ:Username"] ?? "guest";
-                var password = configuration["RabbitMQ:Password"] ?? "guest";
+                var rabbitMqConnString = configuration.GetConnectionString("rabbitmq") ?? 
+                    throw new InvalidOperationException("RabbitMQ connection string not found.");
 
-                cfg.Host(host, port, "/", h =>
-                {
-                    h.Username(username);
-                    h.Password(password);
-                });
+                cfg.Host(new Uri(rabbitMqConnString));
 
                 cfg.ConfigureEndpoints(context);
             });

@@ -36,4 +36,9 @@ public abstract class Repository<TEntity>(DbContext context) : IRepository<TEnti
         _dbSet.Remove(entity);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<bool> ExistsAsync(string id, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AnyAsync(e => e.Id == id, cancellationToken);
+    }
 }

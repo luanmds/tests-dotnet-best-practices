@@ -8,14 +8,44 @@ using PointsWallet.Domain.Commands.CreateUser;
 using PointsWallet.Infrastructure;
 using PointsWallet.Infrastructure.Messaging;
 using System.Text;
+using PointsWallet.Infrastructure.Configurations;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 builder.Services.AddOpenApi();
 
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme() 
+    { 
+        Name = "Authorization", 
+        Type = SecuritySchemeType.ApiKey, 
+        Scheme = "Bearer", 
+        BearerFormat = "JWT", 
+        In = ParameterLocation.Header
+    }); 
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement 
+    { 
+        { 
+            new OpenApiSecurityScheme 
+            { 
+                Reference = new OpenApiReference 
+                { 
+                    Type = ReferenceType.SecurityScheme, 
+                    Id = "Bearer" 
+                } 
+            },
+            Array.Empty<string>()
+        } 
+    }); 
+});
 
 // Add Authentication & Authorization
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]
@@ -58,6 +88,9 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);  
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("pointswalletdb")!, 
+    name: "PostgreSQL");
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -76,13 +109,15 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapWalletEndpoints();
+app.MapHealthChecks("/health");
 
-// Apply migrations in development
-if (app.Environment.IsDevelopment())
+
+if ((app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testing")
+    && builder.Configuration.GetValue<bool>("UseMigrations"))
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<PointsWalletDbContext>();
-    dbContext.Database.Migrate();
+    await dbContext.MigrateDatabaseAsync(CancellationToken.None);
 }
 
 app.Run();

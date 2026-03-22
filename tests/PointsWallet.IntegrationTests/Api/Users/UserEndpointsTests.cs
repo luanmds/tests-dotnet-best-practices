@@ -12,7 +12,7 @@ public class UserEndpointsTests(PointsWalletWebApplicationFixture fixture)
     private readonly HttpClient _client = fixture.Client;
 
     [Fact]
-    public async Task CreateUserRequest_ShouldCallCommandAndReturnSuccess()
+    public async Task CreateUserAsync_ShouldCallCommandAndReturnSuccess()
     {
         // Arrange
         var request = new CreateUserRequest("John Doe", "john.doe@example.com");
@@ -26,5 +26,15 @@ public class UserEndpointsTests(PointsWalletWebApplicationFixture fixture)
         var content = await response.Content.ReadFromJsonAsync<CreateUserResponse>();
         content.Should().NotBeNull();
         content?.UserId.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task GetUsersAsync_ShouldReturnOkStatusCode()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/users");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
     }
 }

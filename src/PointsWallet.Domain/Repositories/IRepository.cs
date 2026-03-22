@@ -8,4 +8,5 @@ public interface IRepository<TEntity, TKey>
     Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
     Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(TKey id, CancellationToken cancellationToken = default);
 }

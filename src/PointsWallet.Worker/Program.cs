@@ -1,4 +1,3 @@
-using MassTransit;
 using PointsWallet.Contracts.Messages;
 using PointsWallet.Domain;
 using PointsWallet.Domain.Behaviors;
@@ -23,15 +22,6 @@ builder.Services
 builder.Services.AddMessaging(builder.Configuration, busConfigurator =>
 {
     busConfigurator.AddConsumer<MessageConsumer>();
-    busConfigurator.UsingRabbitMq((context, cfg) =>
-    {
-        cfg.Host("localhost", "/", h =>
-        {
-            h.Username("guest");
-            h.Password("guest");
-        });
-        cfg.ConfigureEndpoints(context);
-    });
 });
 
 // Register MediatR with validation behavior

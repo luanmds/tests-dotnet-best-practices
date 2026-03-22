@@ -3,6 +3,8 @@ using MediatR;
 using PointsWallet.Api.Requests.Wallets;
 using PointsWallet.Contracts.Messages;
 using PointsWallet.Domain.Commands.CreateWallet;
+using PointsWallet.Domain.Models;
+using PointsWallet.Domain.Repositories;
 
 namespace PointsWallet.Api.Endpoints;
 
@@ -28,16 +30,31 @@ public static class WalletEndpoints
             .Produces(StatusCodes.Status202Accepted)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .RequireAuthorization();
+
+        group.MapGet("/{userId}/wallets", GetWalletsAsync)
+            .WithName("GetWallets")
+            .WithOpenApi()
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .RequireAuthorization();
     }
 
     private static async Task<IResult> CreateWalletAsync(
         string userId,
         CreateWalletRequest request,
         IMediator mediator,
+        IUserRepository userRepository,
         CancellationToken cancellationToken)
     {
         try
         {
+            if(!await userRepository.ExistsAsync(userId, cancellationToken))
+            {
+                return Results.Problem(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    title: $"User with ID '{userId}' does not exist");
+            }
+
             var command = new CreateWalletCommand(userId, request.SymbolicName);
             var walletId = await mediator.Send(command, cancellationToken);
 
@@ -75,6 +92,25 @@ public static class WalletEndpoints
 
         return Results.Accepted();
     }
+
+    public static async Task<IResult> GetWalletsAsync(
+        string userId,
+        IUserRepository userRepository,
+        IWalletRepository walletRepository,
+        CancellationToken cancellationToken)
+    {
+        if(!await userRepository.ExistsAsync(userId, cancellationToken))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: $"User with ID '{userId}' does not exist");
+        }
+
+        var wallets = await walletRepository.GetByUserIdAsync(userId, cancellationToken);
+        return Results.Ok(new GetWalletsResponse(Wallets: wallets));
+    }
 }
 
 public sealed record CreateWalletResponse(string WalletId);
+
+public sealed record GetWalletsResponse(IEnumerable<Wallet> Wallets);
