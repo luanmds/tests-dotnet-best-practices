@@ -30,6 +30,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointsWallet.AppHost", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointsWallet.AspireIntegrationTests", "tests\PointsWallet.AspireIntegrationTests\PointsWallet.AspireIntegrationTests.csproj", "{74A3D451-2DA9-47DE-B0D8-F132A00C621F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "instructions", "instructions", "{6EB4ED2B-C701-E6EB-4C30-8AA01E153174}"
+	ProjectSection(SolutionItems) = preProject
+		.github\instructions\csharp-guidelines.instructions.md = .github\instructions\csharp-guidelines.instructions.md
+		.github\instructions\dotnet-guidelines.instructions.md = .github\instructions\dotnet-guidelines.instructions.md
+		.github\instructions\test-guidelines.instructions.md = .github\instructions\test-guidelines.instructions.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,5 +169,6 @@ Global
 		{5728E24B-5A56-4CBE-B584-EDA8858142E0} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{D250FB03-C55F-4ACE-B598-29DAEEDDAC28} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{74A3D451-2DA9-47DE-B0D8-F132A00C621F} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{6EB4ED2B-C701-E6EB-4C30-8AA01E153174} = {9C6578E7-E4FE-79BB-1635-F363CC1E80DD}
 	EndGlobalSection
 EndGlobal

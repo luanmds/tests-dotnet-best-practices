@@ -20,7 +20,7 @@ public static class UserEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .RequireAuthorization();
         
-        group.MapGet("/", GetUsers)
+        group.MapGet("/", GetUsersAsync)
             .WithName("GetUsers")
             .WithOpenApi()
             .Produces(StatusCodes.Status200OK)
@@ -41,7 +41,7 @@ public static class UserEndpoints
             new CreateUserResponse(userId));
     }
 
-    private static async Task<IResult> GetUsers(
+    private static async Task<IResult> GetUsersAsync(
         IUserRepository userRepository, 
         CancellationToken cancellationToken)
     {

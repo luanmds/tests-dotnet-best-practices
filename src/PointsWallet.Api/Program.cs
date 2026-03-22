@@ -8,6 +8,7 @@ using PointsWallet.Domain.Commands.CreateUser;
 using PointsWallet.Infrastructure;
 using PointsWallet.Infrastructure.Messaging;
 using System.Text;
+using PointsWallet.Infrastructure.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,12 +82,12 @@ app.MapUserEndpoints();
 app.MapWalletEndpoints();
 app.MapHealthChecks("/health");
 
-// Apply migrations in development
+// Apply database migrations on startup (for development and testing environments)
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<PointsWalletDbContext>();
-    dbContext.Database.Migrate();
+    await dbContext.MigrateDatabaseAsync(CancellationToken.None);
 }
 
 app.Run();

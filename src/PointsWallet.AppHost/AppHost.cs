@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Configuration;
 
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? 
+	throw new InvalidOperationException("ASPNETCORE_ENVIRONMENT is not set.");
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Add infrastructure dependencies
 var postgres = builder.AddPostgres("postgres", port: 5432)
-	.WithImage("postgres:16-alpine")
-    .WithEnvironment("POSTGRES_USER", "postgres")
-    .WithEnvironment("POSTGRES_DB", "pointswalletdb");
+	.WithImage("postgres:16-alpine");
 	
 if (builder.Configuration.GetValue("UseVolumes", true))
 {
@@ -20,6 +21,7 @@ var rabbitMq = builder.AddRabbitMQ("rabbitmq")
 
 // Add application projects
 builder.AddProject<Projects.PointsWallet_Api>("api")
+	.WithEnvironment("ASPNETCORE_ENVIRONMENT", environment)
 	.WaitFor(postgresdb)
 	.WaitFor(rabbitMq)
 	.WithHttpHealthCheck("/health")
@@ -27,6 +29,7 @@ builder.AddProject<Projects.PointsWallet_Api>("api")
 	.WithReference(rabbitMq);
 
 builder.AddProject<Projects.PointsWallet_Worker>("worker")
+	.WithEnvironment("ASPNETCORE_ENVIRONMENT", environment)
 	.WaitFor(postgresdb)
 	.WaitFor(rabbitMq)
     .WithReference(postgresdb)
