@@ -12,7 +12,7 @@ using PointsWallet.Infrastructure;
 namespace PointsWallet.Infrastructure.Migrations
 {
     [DbContext(typeof(PointsWalletDbContext))]
-    [Migration("20260321020148_InitialCreate")]
+    [Migration("20260322195042_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

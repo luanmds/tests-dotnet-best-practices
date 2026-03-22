@@ -7,8 +7,8 @@ namespace PointsWallet.Infrastructure.Repositories;
 public class WalletRepository(PointsWalletDbContext context) 
     : Repository<Wallet>(context), IWalletRepository
 {
-    public async Task<Wallet?> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Wallet>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FirstOrDefaultAsync(wallet => wallet.UserId == userId, cancellationToken);
+        return await _dbSet.Where(wallet => wallet.UserId == userId).ToListAsync(cancellationToken);
     }
 }

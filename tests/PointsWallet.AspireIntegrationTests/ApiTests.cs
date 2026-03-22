@@ -68,7 +68,7 @@ public class ApiTests(AspireAppFixture fixture)
         content?.WalletId.Should().NotBeNullOrEmpty();
     }
 
-    // [Fact]
+    [Fact]
     public async Task AddPointsAsync_ShouldSendCommandAndReturnSuccess()
     {
         // Arrange

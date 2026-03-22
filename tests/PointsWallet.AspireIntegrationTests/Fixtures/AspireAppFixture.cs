@@ -58,8 +58,13 @@ public class AspireAppFixture : IAsyncLifetime
         ApiClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", JwtTokenFactory.GenerateToken());
 
+
         await _app.ResourceNotifications
             .WaitForResourceHealthyAsync("api", CancellationToken)
+            .WaitAsync(DefaultTimeout, CancellationToken);
+
+        await _app.ResourceNotifications
+            .WaitForResourceHealthyAsync("worker", CancellationToken)
             .WaitAsync(DefaultTimeout, CancellationToken);
 
     }

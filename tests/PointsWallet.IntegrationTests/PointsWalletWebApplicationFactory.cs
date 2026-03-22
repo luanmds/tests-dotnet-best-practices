@@ -37,6 +37,7 @@ internal class PointsWalletApiWebApplicationFactory(
         builder.ConfigureLogging(logging =>
         {
             logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+            logging.AddFilter("MassTransit", LogLevel.Error);
         });
 
         builder.ConfigureTestServices(services =>

@@ -15,7 +15,6 @@ public static class DatabaseExtensions
             .Options;
 
         using var context = new PointsWalletDbContext(options);
-        await context.Database.EnsureCreatedAsync(cancellationToken);
         await context.Database.MigrateAsync(cancellationToken);
     }
 }

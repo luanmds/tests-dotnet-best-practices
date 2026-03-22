@@ -1,10 +1,9 @@
 # .NET Testing Best Practices
-
 A comprehensive guide to writing effective, maintainable, and reliable tests in .NET applications.
 
 ## Overview
 
-This repository provides best practices, patterns, and guidelines for testing .NET applications, including integration tests and end-to-end tests. The goal is to help developers write tests that are:
+This repository provides best practices, patterns, and guidelines for testing .NET applications, including integration and end-to-end tests. The goal is to help developers write tests that are:
 
 - **Readable**: Easy to understand and maintain
 - **Reliable**: Consistent and deterministic results
@@ -22,21 +21,24 @@ This repository provides best practices, patterns, and guidelines for testing .N
   - [Best Practices](#best-practices)
   - [Project Organization](#project-organization)
     - [Project Structure](#project-structure)
+      - [Test Types](#test-types)
     - [Test Categories](#test-categories)
   - [Tools and Libraries](#tools-and-libraries)
-    - [Recommended Packages](#recommended-packages)
-  - [Running Tests](#running-tests)
-- [Run all tests](#run-all-tests)
-- [Run tests with code coverage](#run-tests-with-code-coverage)
-- [Run tests in a specific project](#run-tests-in-a-specific-project)
-- [Run tests with verbose output](#run-tests-with-verbose-output)
+    - [Recommended Packages \& Tools](#recommended-packages--tools)
+      - [Test Infrastructure](#test-infrastructure)
+  - [Running Integration Tests](#running-integration-tests)
+    - [Prerequisites](#prerequisites-1)
+    - [Setup Environment Variables](#setup-environment-variables)
+    - [Setup User Secrets](#setup-user-secrets)
+    - [Running Tests](#running-tests)
+    - [Using Docker Compose for Local Development](#using-docker-compose-for-local-development)
+    - [Integration Tests Architecture](#integration-tests-architecture)
 
 ## Getting Started
 
 ### Prerequisites
 
 - .NET 9.0 or later
-- Visual Studio 2026, VS Code, or Rider
 - Basic understanding of C# and .NET
 
 ## Testing Frameworks
@@ -47,11 +49,13 @@ This repository will demonstrate testing approaches using modern .NET testing fr
 
 This repository demonstrates key testing principles:
 
-- **Test Isolation**: Tests should not depend on each other or share state
-- **Clarity**: Tests should be easy to understand and maintain
-- **Speed**: Fast execution for rapid feedback during development
-- **Reliability**: Consistent and deterministic test results
-- **Coverage**: Appropriate test coverage for critical business logic
+- **Test Isolation**: Each test runs in a clean, isolated environment (using Testcontainers or Aspire for integration tests)
+- **Clarity**: Tests are easy to read, maintain, and reason about
+- **Speed**: Fast feedback via parallelizable, containerized tests
+- **Reliability**: Consistent, deterministic results across environments
+- **Coverage**: Comprehensive coverage of business logic and integration points
+- **Maintainability**: Tests are easy to update as the codebase evolves
+- **Product Realism Based**: Integration tests use real infrastructure (DB, messaging) for realistic scenarios and confidence in production readiness
 
 ## Project Organization
 
@@ -60,13 +64,20 @@ This repository demonstrates key testing principles:
 ```
 Solution/
 ├── src/
-│   ├── PointsWallet.Api/           # Minimal API, endpoints, DI
-│   ├── PointsWallet.Domain/        # Domain models, commands, validators
-│   └── PointsWallet.Infrastructure/# EF Core, repositories, DI
+│   ├── PointsWallet.Api/                # Minimal API, endpoints, DI
+│   ├── PointsWallet.Domain/             # Domain models, commands, validators
+│   ├── PointsWallet.Infrastructure/     # EF Core, repositories, messaging
+│   └── PointsWallet.Worker/             # Background processing
 └── tests/
-    ├── PointsWallet.UnitTests/     # Unit tests for domain/application
-    ├── PointsWallet.IntegrationTests/ # Integration tests (e.g. DB, API)
+  ├── PointsWallet.UnitTests/          # Unit tests (domain/application logic)
+  ├── PointsWallet.IntegrationTests/   # Integration tests (real DB, messaging, API)
+  └── PointsWallet.AspireIntegrationTests/ # Aspire-powered distributed integration tests
 ```
+
+#### Test Types
+- **Unit Tests**: [WIP] Pure C# logic, no infrastructure dependencies
+- **Integration Tests**: Real database (PostgreSQL), messaging (RabbitMQ), and API using Testcontainers
+- **Aspire Integration Tests**: Distributed scenarios orchestrated with .NET Aspire
 
 ### Test Categories
 
@@ -76,33 +87,29 @@ Solution/
 
 ## Tools and Libraries
 
-### Recommended Packages
+### Recommended Packages & Tools
 
-- `xunit` - Testing framework
-- `FluentAssertions` - Assertion library
-- `Moq` or `NSubstitute` - Mocking framework
-- `AutoFixture` - Test data generation
-- `Bogus` - Fake data generator
-- `Testcontainers` - Docker containers for integration tests
-- `WireMock.Net` - HTTP mocking
-- `Respawn` - Database cleanup
-The repository will be organized to demonstrate different types of tests:
+- `xunit` – Test framework
+- `FluentAssertions` – Expressive assertions
+- `Moq` or `NSubstitute` – Mocking
+- `AutoFixture`, `Bogus` – Test data generation
+- `Testcontainers` – Dockerized PostgreSQL/RabbitMQ for integration tests
+- `Aspire.Hosting.Testing` – Orchestrate distributed app scenarios in Aspire integration tests
+- `WebApplicationFactory` – In-memory API hosting for integration tests
 
-- **Unit Tests**: Testing individual components in isolation
-- **Integration Tests**: Testing interactions between components and external dependencies
-- **End-to-End Tests**: Testing complete workflows through the system
+#### Test Infrastructure
+- **Testcontainers**: Used in `PointsWallet.IntegrationTests` project to spin up real PostgreSQL and RabbitMQ containers for each test class, ensuring isolation and reproducibility. No manual DB setup required; supports parallel test execution.
+- **Aspire**: Used in `PointsWallet.AspireIntegrationTests` project to orchestrate distributed app components and dependencies for advanced integration scenarios. Provides fixtures for spinning up the app host and exposing a pre-configured `HttpClient` for API tests.
 
-Each test category serves a specific purpose and helps ensure comprehensive coverage of the application.
-
-// ...existing code...
 
 ## Running Integration Tests
 
 ### Prerequisites
 
 - .NET 9 SDK
-- Docker (for Testcontainers)
+- Docker (for Testcontainers and Aspire)
 - PostgreSQL (optional, for local development)
+- RabbitMQ (optional, for local development)
 
 ### Setup Environment Variables
 
@@ -208,54 +215,15 @@ docker-compose down
 echo ".env" >> .gitignore
 ```
 
-### Troubleshooting
-
-**Environment variable not found:**
-```bash
-# Verify environment variable is set
-echo $POSTGRES_PASSWORD  # Linux/macOS
-echo %POSTGRES_PASSWORD%  # Windows CMD
-echo $env:POSTGRES_PASSWORD  # Windows PowerShell
-
-# If not set, export it again
-export POSTGRES_PASSWORD="your_secure_password_here"
-```
-
-**Docker not available:**
-```bash
-# Verify Docker is running
-docker ps
-
-# On Linux, ensure user is in docker group
-sudo usermod -aG docker $USER
-newgrp docker
-```
-
-**Port conflicts:**
-```bash
-# Check if port 5432 is in use
-sudo lsof -i :5432
-
-# Stop existing PostgreSQL service
-sudo systemctl stop postgresql
-```
-
-**Testcontainers issues:**
-```bash
-# Clean up dangling containers
-docker system prune -f
-
-# Remove test containers
-docker ps -a | grep testcontainers | awk '{print $1}' | xargs docker rm -f
-```
-
 ### Integration Tests Architecture
 
-Integration tests use **Testcontainers** to spin up isolated PostgreSQL instances, ensuring:
-- ✅ Test isolation (each test class gets a fresh database)
-- ✅ No manual database setup required
+Integration tests use **Testcontainers** to spin up isolated PostgreSQL and RabbitMQ containers, ensuring:
+- ✅ Test isolation (each test class gets a fresh database and message broker)
+- ✅ No manual database or broker setup required
 - ✅ Consistent behavior across environments
 - ✅ Parallel test execution support
+
+Aspire integration tests use **.NET Aspire** to orchestrate distributed app scenarios, spinning up the app host and dependencies for realistic, end-to-end testing of workflows and service interactions.
 
 Example integration test structure:
 

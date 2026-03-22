@@ -9,14 +9,43 @@ using PointsWallet.Infrastructure;
 using PointsWallet.Infrastructure.Messaging;
 using System.Text;
 using PointsWallet.Infrastructure.Configurations;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 builder.Services.AddOpenApi();
 
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme() 
+    { 
+        Name = "Authorization", 
+        Type = SecuritySchemeType.ApiKey, 
+        Scheme = "Bearer", 
+        BearerFormat = "JWT", 
+        In = ParameterLocation.Header
+    }); 
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement 
+    { 
+        { 
+            new OpenApiSecurityScheme 
+            { 
+                Reference = new OpenApiReference 
+                { 
+                    Type = ReferenceType.SecurityScheme, 
+                    Id = "Bearer" 
+                } 
+            },
+            Array.Empty<string>()
+        } 
+    }); 
+});
 
 // Add Authentication & Authorization
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]
@@ -82,8 +111,9 @@ app.MapUserEndpoints();
 app.MapWalletEndpoints();
 app.MapHealthChecks("/health");
 
-// Apply database migrations on startup (for development and testing environments)
-if (app.Environment.IsDevelopment())
+
+if ((app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testing")
+    && builder.Configuration.GetValue<bool>("UseMigrations"))
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<PointsWalletDbContext>();
