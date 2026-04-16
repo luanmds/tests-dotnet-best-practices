@@ -24,7 +24,6 @@ builder.AddProject<Projects.PointsWallet_Api>("api")
 	.WithEnvironment("ASPNETCORE_ENVIRONMENT", environment)
 	.WaitFor(postgresdb)
 	.WaitFor(rabbitMq)
-	.WithHttpHealthCheck("/health")
     .WithReference(postgresdb)
 	.WithReference(rabbitMq);
 

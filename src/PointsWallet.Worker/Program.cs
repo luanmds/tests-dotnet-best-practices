@@ -3,6 +3,7 @@ using PointsWallet.Domain;
 using PointsWallet.Domain.Behaviors;
 using PointsWallet.Domain.Commands.AddPoints;
 using PointsWallet.Infrastructure;
+using PointsWallet.Infrastructure.Configurations;
 using PointsWallet.Infrastructure.Messaging;
 using PointsWallet.Worker.Messaging;
 using PointsWallet.Worker.Messaging.Mappers;
@@ -34,4 +35,14 @@ builder.Services.AddMediatR(cfg =>
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database", LogLevel.Warning);  
 
 var host = builder.Build();
-host.Run();
+
+if ((host.Services.GetRequiredService<IHostEnvironment>().IsDevelopment() || 
+     host.Services.GetRequiredService<IHostEnvironment>().EnvironmentName == "Testing")
+    && builder.Configuration.GetValue<bool>("UseMigrations"))
+{
+    using var scope = host.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<PointsWalletDbContext>();
+    await dbContext.MigrateDatabaseAsync(CancellationToken.None);
+}
+
+await host.RunAsync();

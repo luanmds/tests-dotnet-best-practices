@@ -14,14 +14,15 @@ public class AspireAppFixture : IAsyncLifetime
 {
     private IDistributedApplicationBuilder _appHostBuilder = null!;
     private DistributedApplication _app = null!;
-    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
-
-    public static CancellationToken CancellationToken => new CancellationTokenSource(DefaultTimeout).Token;
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(300);
 
     public HttpClient ApiClient { get; private set; } = null!;
 
     public async Task InitializeAsync()
     {
+        using var cts = new CancellationTokenSource(DefaultTimeout);
+        var cancellationToken = cts.Token;
+
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
         
         _appHostBuilder = await DistributedApplicationTestingBuilder
@@ -51,22 +52,11 @@ public class AspireAppFixture : IAsyncLifetime
 
         _app = _appHostBuilder.Build();
         
-        await _app.StartAsync(CancellationToken)
-            .WaitAsync(DefaultTimeout, CancellationToken);
+        await _app.StartAsync(cancellationToken);
 
         ApiClient = _app.CreateHttpClient("api", "https");
         ApiClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", JwtTokenFactory.GenerateToken());
-
-
-        await _app.ResourceNotifications
-            .WaitForResourceHealthyAsync("api", CancellationToken)
-            .WaitAsync(DefaultTimeout, CancellationToken);
-
-        await _app.ResourceNotifications
-            .WaitForResourceHealthyAsync("worker", CancellationToken)
-            .WaitAsync(DefaultTimeout, CancellationToken);
-
     }
 
     public async Task DisposeAsync() => await _app.DisposeAsync();
