@@ -89,15 +89,10 @@ public class PointsWalletWebApplicationFixture : IAsyncLifetime
 
     private static IHost CreateWorkerHost(string connectionString, string rabbitMqConnectionString)
     {
-        var rabbitUri = new Uri(rabbitMqConnectionString);
-
         var workerSettings = new Dictionary<string, string?>
         {
-            ["ConnectionStrings:DefaultConnection"] = connectionString,
-            ["RabbitMQ:Host"] = rabbitUri.Host,
-            ["RabbitMQ:Port"] = rabbitUri.Port.ToString(),
-            ["RabbitMQ:Username"] = RabbitMqUsername,
-            ["RabbitMQ:Password"] = RabbitMqPassword
+            ["ConnectionStrings:pointswalletdb"] = connectionString,
+            ["ConnectionStrings:rabbitmq"] = rabbitMqConnectionString
         };
 
         var builder = Host.CreateApplicationBuilder();

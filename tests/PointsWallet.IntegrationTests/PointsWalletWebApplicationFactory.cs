@@ -24,11 +24,8 @@ internal class PointsWalletApiWebApplicationFactory(
         {
             var testSettings = new Dictionary<string, string?>
             {
-                ["ConnectionStrings:DefaultConnection"] = connectionString,
-                ["RabbitMQ:Host"] = rabbitUri.Host,
-                ["RabbitMQ:Port"] = rabbitUri.Port.ToString(),
-                ["RabbitMQ:Username"] = PointsWalletWebApplicationFixture.RabbitMqUsername,
-                ["RabbitMQ:Password"] = PointsWalletWebApplicationFixture.RabbitMqPassword
+                ["ConnectionStrings:pointswalletdb"] = connectionString,
+                ["ConnectionStrings:rabbitmq"] = rabbitMqConnectionString
             };
 
             configurationBuilder.AddInMemoryCollection(testSettings);
